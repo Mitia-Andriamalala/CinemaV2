@@ -1,0 +1,46 @@
+@model List<GestionCinema.Models.DiffusionFilm>
+@using GestionCinema.Models
+@{
+    ViewData["Title"] = "Home Page";
+    var currentDateTime = DateTime.Now;
+}
+
+<div class="container-fluid bg-dark text-light py-4">
+    <div class="row">  
+      <main class="col-md-8">
+            <h2 class="text-center text-gold">Diffusion A venir</h2>
+            <div class="d-flex overflow-auto gap-3">
+                @foreach (var diffu in Model)
+                {
+                    <div class="card bg-transparent border-1" style="min-width: 200px;margin-right:10px;padding:10px;">
+                        <!-- Image du film -->
+                        @if (diffu.Image != null && diffu.Image.Length > 0)
+                        {
+                            <img src="@FonctionAutre.ImageBase64(diffu.Image)" 
+                                    class="card-img-top rounded shadow" 
+                                    alt="Image du Film" 
+                                    style="height: 300px; object-fit: cover;" />
+                        }
+                        else
+                        {
+                            <div class="card-img-top rounded shadow bg-secondary d-flex align-items-center justify-content-center" style="height: 300px;">
+                                <span>Aucune image</span>
+                            </div>
+                        }
+                        <!-- Détails du film -->
+                        <div class="card-body">
+                            <h5 class="card-title text-gold">@diffu.Titre</h5>
+                            <p class="card-text"><small>Catégorie : @diffu.Categorie</small></p>
+                            <p class="card-text"><small>Horaire : @diffu.PlageHoraireDebut.ToString("dd/MM/yyyy HH:mm")</small></p>
+                            <p class="card-text"><small>Durée : @diffu.Duree</small></p>
+                            <p class="card-text"><small>Salle : @diffu.NomSalle</small></p>
+                            <a class="nav-link text-light bg-success" asp-area="" asp-controller="Home" asp-action="ReservationPage" asp-route-salleId="@diffu.SalleId" asp-route-idDiff="@diffu.IdDiffusion">
+                                Reserver
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </main>
+    </div>
+</div>

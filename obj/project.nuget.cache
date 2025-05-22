@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "EcdKDkmR/hE=",
+  "success": true,
+  "projectFilePath": "D:\\S5\\Cinema2\\Cinema\\Cinema.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Mitia\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\7.0.1\\microsoft.extensions.logging.abstractions.7.0.1.nupkg.sha512",
+    "C:\\Users\\Mitia\\.nuget\\packages\\mysqlconnector\\2.3.5\\mysqlconnector.2.3.5.nupkg.sha512",
+    "C:\\Users\\Mitia\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}

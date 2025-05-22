@@ -1,0 +1,177 @@
+@{
+    @using GestionCinema.Models;
+    ViewData["Title"] = "Place Film";
+}
+
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+<style>
+    /* Container du tableau étendu */
+    .container {
+        width: 100%; /* Rendre le conteneur du tableau plein écran */
+        max-width: 1200px; /* Limiter la largeur maximum pour ne pas trop étirer */
+        padding: 20px;
+    }
+
+    /* Modifier la largeur des colonnes */
+    .col-3 {
+        flex: 1 1 33%; /* Répartir les colonnes de manière égale */
+        max-width: 33%; /* Chaque colonne occupe 33% de la largeur du conteneur */
+    }
+
+    /* Flexbox pour les places */
+    .d-flex.flex-wrap.justify-content-start {
+        width: 100%; /* S'assurer que les éléments flex prennent toute la largeur disponible */
+        flex-wrap: wrap;
+        justify-content: space-evenly; /* Espacement égal entre les éléments */
+    }
+
+    .row.mb-2 {
+        margin-bottom: 20px; /* Espacement vertical entre les lignes */
+    }
+
+    .place {
+        min-width: 50px; /* Largeur minimale des places */
+        max-width: 60px; /* Largeur maximale des places */
+        padding: 15px; /* Plus de padding pour l'espace interne */
+        margin: 5px; /* Espacement entre les cases */
+        font-size: 14px; /* Taille de la police */
+    }
+
+    .place p {
+        font-size: 14px;
+        margin: 0;
+    }
+
+    .info div {
+        padding: 20px;
+        font-size: 16px;
+    }
+
+    /* Espacement entre les groupes de places */
+    .d-flex.flex-wrap.justify-content-start {
+        gap: 20px; /* Espacement horizontal entre les groupes de places */
+    }
+
+    /* Ajuster les couleurs pour un meilleur contraste */
+    .border {
+        border: 1px solid #000;
+    }
+</style>
+
+<div class="info d-flex justify-content-center mb-4">
+    <div class="col-3 mb-1 p-3 text-center border" style="background-color: lightblue;">
+        <p>Reserver non payer</p>
+    </div>
+    <div class="col-3 mb-1 p-3 text-center border" style="background-color: green;">
+        <strong>Reserver</strong>
+    </div>
+    <div class="col-3 mb-1 p-3 text-center border" style="background-color: blue;">
+        <strong>Disponible</strong>
+    </div>
+</div>
+
+<script>
+    function updateReservationStatus(reservationId) {
+        fetch('/Diffusion/UpdateReservationStatus', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ idReservation: reservationId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error updating reservation status:', error);
+            alert('An error occurred while updating the reservation status.');
+        });
+    }
+</script>
+
+<div class="container text-center mt-4">
+    <h2>Places Disponibles pour la Salle @ViewBag.salleId</h2>
+
+    <div class="d-flex flex-wrap justify-content-start">
+        @foreach (var columnGroup in ((List<PlacesDispo>)ViewBag.Places).GroupBy(p => p.NomColonne))
+        {
+            var nbPlaces = columnGroup.First().NbPlaces;
+            var nbLignes = columnGroup.First().NbLignes;
+            var placesParLigne = (int)Math.Ceiling((double)nbPlaces / nbLignes);
+            int nombreReserver=0;
+            <div class="m-2 p-2 border" style="min-width: 200px; max-width: 300px;">
+                <h3>@columnGroup.Key</h3>
+                <p>Placer reserver: @nombreReserver</p>
+                @for (int i = 1; i <= nbLignes; i++)
+                {
+                    var placesDeLaLigne = columnGroup
+                        .Skip((i - 1) * placesParLigne)
+                        .Take(placesParLigne)
+                        .ToList();
+
+                    <div class="row mb-2">
+                        <div class="col-12" style="text-align: center;">
+                            <p>Ligne @i</p>
+                            <div class="d-flex flex-wrap justify-content-center">
+                                @foreach (var place in placesDeLaLigne)
+                                {
+                                    var reservation = ((List<Reservation>)ViewBag.PlacesFilm)
+                                        .FirstOrDefault(res => res.PlaceId == place.NumPlace);
+
+                                    if (reservation != null)
+                                    {
+                                        if (reservation.EtatPlace == 1)
+                                        {
+                                            <div class="col-1 mb-1 text-center border place" id="place_@place.NumPlace"
+                                                 style="background-color: green;">
+                                                <p>@place.NumPlace</p>
+                                                @{
+                                                    nombreReserver+=1;
+                                                }
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="col-1 mb-1 text-center border place" id="place_@place.NumPlace"
+                                                 style="background-color: lightblue;">
+                                                <p>@place.NumPlace</p>
+                                                <small>@reservation.DateReservation</small>
+                                            </div>
+                                            <script>
+                                                var reservationTime = new Date("@reservation.DateReservation");
+                                                var currentTime = new Date();
+                                                var timeDifferenceInHours = (currentTime - reservationTime) / 1000 / 60 / 60;
+
+                                                if (timeDifferenceInHours >= 1) {
+                                                    var reservationId = "@reservation.IdReservation";
+                                                    if (reservationId) {
+                                                        updateReservationStatus(reservationId);
+                                                    }
+                                                }
+                                            </script>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="col-1 mb-1 text-center border place" id="place_@place.NumPlace"
+                                             style="background-color: blue;">
+                                            <p>@place.NumPlace</p>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>

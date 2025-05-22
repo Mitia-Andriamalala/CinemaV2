@@ -1,0 +1,55 @@
+@model List<GestionCinema.Models.ListeReserve>
+@{
+    ViewData["Title"] = "Liste reservations";
+}
+
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/Cinema.styles.css" asp-append-version="true" />
+<header>
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <div class="container-fluid">
+            <a class="nav-link text-light" asp-area="" asp-controller="Admin" asp-action="AccueilAdmin">Accueil</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+    </nav>
+</header>
+
+<div class="text-center">
+    <h3 class="display-2">Reservations faites</h3>
+    <table class="table table-bordered">
+        <tr>
+            <th>IdReservation</th>
+            <th>Utilisateur</th>
+            <th>EtatPlace</th>
+            <th>PlageHoraireDebut</th>
+            <th>Titre</th>
+            <th>NomSalle</th>
+        </tr>
+        @foreach (var res in Model)
+        {
+            <tr>
+                <td>@res.IdReservation</td>
+                <td>@res.Name</td>
+                <td>
+                    @if(res.EtatPlace==1)
+                    {
+                        <p>Payer</p>
+                    }
+                    else
+                    {
+                        <p>Reserver simplement</p>
+                    }
+                </td>
+                <td>@res.PlageHoraireDebut</td>
+                <td>@res.Titre</td>
+                <td>@res.NomSalle</td>
+            </tr>
+        }
+    </table>
+    <br/>
+    <a href="/Admin/AccueilAdmin" class="btn btn-secondary">Retour a l'accueil</a>
+</div>

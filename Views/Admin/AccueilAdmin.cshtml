@@ -1,0 +1,65 @@
+@model List<GestionCinema.Models.ListeReserveSalle>
+@{
+    ViewData["Title"] = "Accueil";
+}
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/Cinema.styles.css" asp-append-version="true" />
+<header>
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <div class="container-fluid">
+            <a class="nav-link text-light" asp-area="" asp-controller="Admin" asp-action="AccueilAdmin">Accueil</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <ul class="navbar-nav flex-grow-1">
+                    <li class="nav-item">
+                        <a class="nav-link text-light" asp-area="" asp-controller="Film" asp-action="Film">Film</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light" asp-area="" asp-controller="Admin" asp-action="Gestion">Gestion salle/Places</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link text-light" asp-area="" asp-controller="Diffusion" asp-action="diffusion">Diffusion</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light" asp-area="" asp-controller="Admin" asp-action="Reservation">Historiques reservation</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+<div class="text-center">
+    <h1 class="display-4 star-animation">Gestion de Cinema</h1>
+    <h1>Liste de paiement par date reservation</h1>
+    <div class="table-responsive">
+        <table class="table table-striped table-dark table-bordered text-center">
+            <thead>
+                <tr class="text-gold">
+                    <th>nom salle</th>
+                    <th>Vola azo</th>
+                    <th>nombre reservation</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var liste in Model)
+                {
+                    <tr>
+                        <td>@liste.NomSalle</td>
+                        <td>@liste.SommeTotale</td>
+                        <td>@liste.NombreReservations</td>
+                        <td>@liste.JourReservation</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <br />
+    <a href="/Home/Index" class="btn btn-secondary">Go Back to Home</a>
+</div>
+

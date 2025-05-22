@@ -1,0 +1,162 @@
+@{
+    @using GestionCinema.Models;
+    ViewData["Title"] = "Faire une reservation";
+}
+
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+<div class="container text-center mt-4">
+
+<header>
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <div class="container-fluid">
+            <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="ListeProgramme">Retour</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <ul class="navbar-nav flex-grow-1">
+                    <li class="nav-item">
+                        <a class="nav-link text-light">Reservation non payer <div style="background-color: lightblue;width:15px;height:15px;"></div></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light">Reserver <div style="background-color: green;width:15px;height:15px;"></div></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light">Disponible<div style="background-color: gold;width:15px;height:15px;"></div></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+</div>
+
+    <h2>Places Disponibles pour la Salle @ViewBag.salleId</h2>
+    <div class="d-flex flex-wrap justify-content-start">
+        @foreach (var columnGroup in ((List<PlacesDispo>)ViewBag.Places).GroupBy(p => p.NomColonne))
+        {
+            var placesParLigne = (int)Math.Ceiling((double)columnGroup.First().NbPlaces / columnGroup.First().NbLignes);
+            var nbLignes = (int)Math.Ceiling((double)columnGroup.First().NbPlaces / placesParLigne);
+
+            <div class="m-2 p-2 border" style="min-width: 200px; max-width: 300px;">
+                <h3 style="margin-left:50%;">@columnGroup.Key</h3>
+
+                @for (int i = 1; i <= nbLignes; i++)
+                {
+                    var placesDeLaLigne = columnGroup.Where(p => (columnGroup.ToList().IndexOf(p) / placesParLigne) + 1 == i).ToList();
+
+                    <div class="row mb-2">
+                        <div class="col-12" style="text-align: center;">
+                            <p>Ligne @i</p>
+
+                            <div class="d-flex flex-wrap justify-content-center">
+                                @foreach (var place in placesDeLaLigne)
+                                {
+                                    var reservation = ((List<Reservation>)ViewBag.PlacesFilm)
+                                        .FirstOrDefault(res => res.PlaceId == place.NumPlace);
+
+                                    if (reservation != null)
+                                    {
+                                        if (reservation.EtatPlace == 1)
+                                        {
+                                            <div class="col-1 mb-1 text-center border" id="place_@place.NumPlace" style="background-color: green;">
+                                                <strong style="display:none">@place.NumPlace</strong>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="col-1 mb-1 text-center border" id="place_@place.NumPlace" style="background-color: lightblue;">
+                                                <strong style="display:none">@place.NumPlace</strong>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="col-1 mb-1 text-center border" id="place_@place.NumPlace" style="background-color: gold;">
+                                            <strong style="display:none">@place.NumPlace</strong>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="reservationModal" tabindex="-1" aria-labelledby="reservationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reservationModalLabel">Faire une Réservation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="/Home/Reservation">
+                    <input type="hidden" name="idDiffusion" value="@ViewBag.IdDiffusion" />
+                    <input type="hidden" name="salleId" value="@ViewBag.salleId" />
+
+                    <div class="form-group">
+                        <label for="modalPlace">Numéro de Place</label>
+                        <input type="text" id="modalPlace" name="place" class="form-control" readonly />
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label for="choix">Option</label><br />
+                        <input type="radio" id="choix" name="choix" value="1" /> <label>Payer</label>
+                        <input type="radio" id="choix" name="choix" value="2" /> <label>Réserver seulement</label>
+                    </div>
+
+                    <div class="form-group mt-3">
+                    <label>Paiement:</label>
+                        <select class="form-control" name="mode" id="classe">
+                        <option value="">Sélectionnez un mode de paiement</option>
+                        @foreach (var modelP in @ViewBag.mode)
+                        {
+                            <option value="@modelP.idMode">@modelP.type</option>
+                        }
+                    </select>
+                    </div>
+
+                    <label for="duree">Date de reservation:</label>
+                    <input type="datetime-local" name="dtRes" id="">
+
+                    <div class="form-group">
+                        <label for="modalPlace">Vola:</label>
+                        <input type="number" id="vola" name="vola" class="form-control"/>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary mt-3">Réserver</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const places = document.querySelectorAll(".col-1.mb-1.text-center.border");
+        places.forEach(place => {
+            place.addEventListener("click", function () {
+                const numPlace = this.querySelector("strong").innerText;
+                const modalPlaceInput = document.getElementById("modalPlace");
+                modalPlaceInput.value = numPlace;
+
+                const modal = new bootstrap.Modal(document.getElementById("reservationModal"));
+                modal.show();
+            });
+        });
+    });
+</script>
